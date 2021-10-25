@@ -1,5 +1,6 @@
 import java.util.Comparator;
 import java.util.Date;
+import java.util.NoSuchElementException;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class CallCenter {
@@ -25,7 +26,7 @@ public class CallCenter {
     public void generateCall() {
         for (int i = 0; i < callCenterCapacity; i++) {
             Call newCall = new Call(new Date());
-            calls.add(newCall);
+            if (!calls.offer(newCall)) break;
             System.out.println("Поступил звонок " + newCall.getCallDate());
             try {
                 Thread.sleep(callInterrupt);
@@ -37,16 +38,13 @@ public class CallCenter {
 
     public void handleCall() {
         while (true) {
-            System.out.println("Сейчас в очереди " + calls.size() + " звонков");
             try {
                 Thread.sleep(handleInterrupt);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (calls.isEmpty()) {
+                System.out.println("Звонок, поступивший " + calls.remove().getCallDate() + " обработан");
+            } catch (NoSuchElementException | InterruptedException e) {
                 break;
             }
-            System.out.println("Звонок, поступивший " + calls.poll().getCallDate() + " обработан");
+
         }
     }
 }
